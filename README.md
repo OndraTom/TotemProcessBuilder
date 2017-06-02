@@ -9,9 +9,11 @@ String command = "ls -l | cat > ./output.txt 2> ./error.txt";
 // Command will run as direct process under JVM (not as sh process).
 TotemProcessBuilder processBuilder = new TotemProcessBuilder(command);
 
-processBuilder.start(); // Starts process thread.
+// Starts process thread.
+processBuilder.start();
 
 // processBuilder.stop(); Would instantly kill the process.
 
-processBuilder.waitFor(); // Waits for process to finish.
+// Waits for process to finish.
+processBuilder.waitFor();
 ```
