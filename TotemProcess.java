@@ -16,61 +16,112 @@ import java.util.List;
  */
 public class TotemProcess implements Runnable
 {
-	private String command;
+	/**
+	 * Executing command parts.
+	 */
+	private String[] command;
 	
 	
+	/**
+	 * Process builder (caller).
+	 */
 	private TotemProcessBuilder builder;
 	
 	
+	/**
+	 * Process input lines.
+	 */
 	private List<String> input = new ArrayList<>();
 	
 	
+	/**
+	 * Process standard output lines.
+	 */
 	private List<String> standardOutput = new ArrayList<>();
 	
 	
+	/**
+	 * Process error output lines.
+	 */
 	private List<String> errorOutput = new ArrayList<>();
 	
 	
+	/**
+	 * Standard output file.
+	 */
 	private PrintWriter standardOutputFile = null;
 	
 	
+	/**
+	 * Error output file.
+	 */
 	private PrintWriter errorOutputFile = null;
 	
 	
+	/**
+	 * Executed process.
+	 */
 	private Process process = null;
 	
 	
-	public TotemProcess(String command, TotemProcessBuilder builder)
+	/**
+	 * @param command Command for execution.
+	 * @param builder The caller of the TotemProcess.
+	 */
+	public TotemProcess(String[] command, TotemProcessBuilder builder)
 	{
 		this.command = command;
 		this.builder = builder;
 	}
 	
 	
+	/**
+	 * Sets the process input.
+	 * 
+	 * @param input 
+	 */
 	public void setInput(List<String> input)
 	{
 		this.input = input;
 	}
 	
 	
+	/**
+	 * Sets the standard output file.
+	 * 
+	 * @param standardOutputFilePath
+	 * @throws IOException 
+	 */
 	public void setStandardOutputFile(String standardOutputFilePath) throws IOException
 	{
 		this.standardOutputFile = new PrintWriter(standardOutputFilePath, "UTF-8");
 	}
 	
 	
+	/**
+	 * Sets the error output file.
+	 * 
+	 * @param errorOutputFilePath
+	 * @throws IOException 
+	 */
 	public void setErrorOutputFile(String errorOutputFilePath) throws IOException
 	{
 		this.errorOutputFile = new PrintWriter(errorOutputFilePath, "UTF-8");
 	}
 	
 	
+	/**
+	 * @return Standard output.
+	 */
 	public List<String> getStandardOutput()
 	{
 		return this.standardOutput;
 	}
 	
 	
+	/**
+	 * @return Error output.
+	 */
 	public List<String> getErrorOutput()
 	{
 		return this.errorOutput;
@@ -117,6 +168,9 @@ public class TotemProcess implements Runnable
 	}
 	
 	
+	/**
+	 * Stops the process and closes all open files.
+	 */
 	public void stop()
 	{
 		this.process.destroy();
@@ -124,13 +178,18 @@ public class TotemProcess implements Runnable
 	}
 	
 	
+	/**
+	 * Writes process input to the output stream (that's where process input should be).
+	 * 
+	 * @throws IOException 
+	 */
 	private void writeProcessInput() throws IOException
 	{
 		BufferedWriter standardOutputWriter = new BufferedWriter(new OutputStreamWriter(this.process.getOutputStream()));
 				
 		for (String inputLine : this.input)
 		{
-			standardOutputWriter.write(inputLine);
+			standardOutputWriter.write(inputLine + "\n");
 		}
 
 		standardOutputWriter.flush();
@@ -138,6 +197,11 @@ public class TotemProcess implements Runnable
 	}
 	
 	
+	/**
+	 * Prepares the process output saving.
+	 * 
+	 * @throws IOException 
+	 */
 	private void prepareOutputs() throws IOException
 	{
 		BufferedReader standardOutputReader = new BufferedReader(new InputStreamReader(this.process.getInputStream()));
@@ -157,12 +221,19 @@ public class TotemProcess implements Runnable
 	}
 	
 	
+	/**
+	 * Saves standard output line.
+	 * 
+	 * @param line 
+	 */
 	private void saveStandardOutputLine(String line)
 	{
+		// Saves it into the file, if provided.
 		if (this.standardOutputFile != null)
 		{
 			this.standardOutputFile.println(line);
 		}
+		// Otherwise saves it to the memory.
 		else
 		{
 			this.standardOutput.add(line);
@@ -170,12 +241,19 @@ public class TotemProcess implements Runnable
 	}
 	
 	
+	/**
+	 * Saves error output line.
+	 * 
+	 * @param line 
+	 */
 	private void saveErrorOutputLine(String line)
 	{
+		// Saves it into the file, if provided.
 		if (this.errorOutputFile != null)
 		{
 			this.errorOutputFile.println(line);
 		}
+		// Otherwise saves it to the memory.
 		else
 		{
 			this.errorOutput.add(line);
@@ -183,6 +261,9 @@ public class TotemProcess implements Runnable
 	}
 	
 	
+	/**
+	 * Closes all open files.
+	 */
 	private void closeFiles()
 	{
 		if (this.standardOutputFile != null)

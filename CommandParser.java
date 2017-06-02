@@ -21,7 +21,7 @@ public class CommandParser
 	/**
 	 * Program calls.
 	 */
-	private List<String> programCalls = new ArrayList<>();
+	private List<String[]> programCalls = new ArrayList<>();
 	
 	
 	/**
@@ -54,7 +54,7 @@ public class CommandParser
 	/**
 	 * @return program calls
 	 */
-	public List<String> getProgramCalls()
+	public List<String[]> getProgramCalls()
 	{
 		return this.programCalls;
 	}
@@ -143,11 +143,19 @@ public class CommandParser
 	 */
 	private void parseProgramCalls()
 	{
+		int i;
 		String[] split = this.processedCommand.split("\\|");
 		
 		for (String programCall : split)
 		{
-			this.programCalls.add(programCall.trim());
+			String[] programCallParts = programCall.trim().split(" ");
+			
+			for (i = 0; i < programCallParts.length; i++)
+			{
+				programCallParts[i] = programCallParts[i].trim();
+			}
+			
+			this.programCalls.add(programCallParts);
 		}
 	}
 }

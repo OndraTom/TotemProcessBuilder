@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TotemProcessBuilder main class.
+ * TotemProcessBuilder - main class.
  * 
  * @author Ondřej Tom <info@ondratom.cz>
  */
@@ -14,7 +14,7 @@ public class TotemProcessBuilder
 	/**
 	 * Program calls.
 	 */
-	private List<String> programCalls = new ArrayList<>();
+	private List<String[]> programCalls = new ArrayList<>();
 	
 	
 	/**
@@ -29,17 +29,32 @@ public class TotemProcessBuilder
 	private String errorOutputFilePath = null;
 	
 	
+	/**
+	 * Running flag.
+	 */
 	private boolean isRunning = false;
 	
 	
+	/**
+	 * Current TotemProcess.
+	 */
 	private TotemProcess runningProcess = null;
 	
 	
+	/**
+	 * Index of program for call.
+	 */
 	private int programCallIndex = 0;
 	
 	
+	/**
+	 * @param	command
+	 * @throws	CommandParserException
+	 * @throws	InvalidCommandException 
+	 */
 	public TotemProcessBuilder(String command) throws CommandParserException, InvalidCommandException
 	{
+		// Parses and validates the command.
 		CommandParser parser		= new CommandParser(command);
 		CommandValidator validator	= new CommandValidator(parser);
 		
@@ -48,6 +63,7 @@ public class TotemProcessBuilder
 			throw new InvalidCommandException(validator.getInvalidityReasons());
 		}
 		
+		// Sets the parameters based on the parsed command.
 		this.programCalls			= parser.getProgramCalls();
 		this.standardOutputFilePath = parser.getStandardOutputFilePath();
 		this.errorOutputFilePath	= parser.getErrorOutputFilePath();
@@ -59,10 +75,21 @@ public class TotemProcessBuilder
 	 */
 	public static void main(String[] args) 
 	{
+		if (args.length < 1)
+		{
+			System.out.println("Provide command.");
+			return;
+		}
 		
+		runCommand(args[0]);
 	}
 	
 	
+	/**
+	 * Starts the processing.
+	 * 
+	 * @throws IOException 
+	 */
 	public void start() throws IOException
 	{
 		this.isRunning = true;
@@ -71,13 +98,27 @@ public class TotemProcessBuilder
 	}
 	
 	
+	/**
+	 * @return TRUE if processing is still running, FALSE otherwise.
+	 */
+	public boolean isRunning()
+	{
+		return this.isRunning;
+	}
+	
+	
+	/**
+	 * Processes next program call.
+	 * 
+	 * @throws IOException 
+	 */
 	public void processNextProgramCall() throws IOException
 	{
 		if (this.isRunning)
 		{
 			if (this.programCallIndex < this.programCalls.size())
 			{
-				String programCall		= this.programCalls.get(this.programCallIndex);
+				String[] programCall	= this.programCalls.get(this.programCallIndex);
 				TotemProcess newProcess	= new TotemProcess(programCall, this);
 				
 				// Setting error file if provided.
@@ -112,6 +153,9 @@ public class TotemProcessBuilder
 	}
 	
 	
+	/**
+	 * Stops processing.
+	 */
 	public void stop()
 	{
 		if (this.isRunning)
@@ -126,6 +170,9 @@ public class TotemProcessBuilder
 	}
 	
 	
+	/**
+	 * Resets processing state.
+	 */
 	private void resetState()
 	{
 		this.runningProcess		= null;
@@ -134,15 +181,49 @@ public class TotemProcessBuilder
 	}
 	
 	
+	/**
+	 * 
+	 * ---------------------------------
+	 *	HELP FUNCTIONS FROM THIS PLACE
+	 * ---------------------------------
+	 * 
+	 */
+	
+	
+	/**
+	 * Runs command with TotemProcessBuilder.
+	 * 
+	 * @param command 
+	 */
+	private static void runCommand(String command)
+	{
+		try
+		{
+			TotemProcessBuilder builder = new TotemProcessBuilder(command);
+
+			builder.start();
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	
+	/**
+	 * Prints parser result.
+	 * 
+	 * @param command 
+	 */
 	private static void printParserResult(String command)
 	{
 		try
 		{
 			CommandParser parser = new CommandParser(command);
 			
-			for (String programCall : parser.getProgramCalls())
+			for (String[] programCall : parser.getProgramCalls())
 			{
-				System.out.println("Program call: " + programCall);
+				System.out.println("Program call: " + String.join(" ", programCall));
 			}
 			
 			if (parser.hasStandardOutputFileSet())
