@@ -182,6 +182,22 @@ public class TotemProcessBuilder
 	
 	
 	/**
+	 * Waits for processing end.
+	 */
+	public void waitFor()
+	{
+		while (this.isRunning)
+		{
+			try
+			{
+				Thread.sleep(500);
+			}
+			catch (InterruptedException e) {}
+		}
+	}
+	
+	
+	/**
 	 * 
 	 * ---------------------------------
 	 *	HELP FUNCTIONS FROM THIS PLACE
